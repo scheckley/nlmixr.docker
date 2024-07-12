@@ -2,7 +2,8 @@ FROM rocker/verse:latest
 
 WORKDIR /usr/local/rstudio
 
-RUN groupadd -g 1001 rstudio && useradd -u 1001 -g rstudio rstudio
+RUN groupadd -g 1001 stephen && useradd -u 1001 -g stephen stephen
+RUN mkdir /home/stephen
 
 RUN apt-get clean all && \
     apt-get update && \
@@ -31,16 +32,20 @@ RUN apt-get clean all && \
    apt-get purge && \
    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN mkdir -p /srv/r-installation
-RUN chown -R rstudio:rstudio /srv/r-installation
-COPY *.R *.sh /srv/r-installation
+USER 1001
+
+USER root
+
+RUN mkdir -p /home/stephen/r-installation
+RUN chown -R stephen:stephen /home/stephen/r-installation
+COPY *.R *.sh /home/stephen/r-installation/
 
 # Run all files ending with "sh"; then cleanup any apt installation remnants
-RUN cd /srv/r-installation && \
+RUN cd /home/stephen/r-installation/ && \
     chmod 755 *sh && \
-    run-parts --exit-on-error --verbose --regex '.*sh' /srv/r-installation && \
+    run-parts --exit-on-error --verbose --regex '.*sh' /home/stephen/r-installation && \
     apt-get clean all && \
     apt-get purge && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY examples /home/rstudio/examples
+COPY examples /home/stephen/examples

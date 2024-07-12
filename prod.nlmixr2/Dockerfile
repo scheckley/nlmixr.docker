@@ -1,5 +1,9 @@
 FROM rocker/verse:latest
 
+WORKDIR /usr/local/rstudio
+
+RUN groupadd -g 1001 rstudio && useradd -u 1001 -g rstudio rstudio
+
 RUN apt-get clean all && \
     apt-get update && \
     apt-get upgrade -y && \
@@ -28,6 +32,7 @@ RUN apt-get clean all && \
    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN mkdir -p /srv/r-installation
+RUN chown -R rstudio:rstudio /srv/r-installation
 COPY *.R *.sh /srv/r-installation
 
 # Run all files ending with "sh"; then cleanup any apt installation remnants
